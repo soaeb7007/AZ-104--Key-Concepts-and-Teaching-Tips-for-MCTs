@@ -1,0 +1,16 @@
+// Failed sign-ins with geographic anomalies in the last 24 hours
+SigninLogs
+| where TimeGenerated > ago(24h)
+| where ResultType != 0 // Failed sign-ins only
+| extend CountryOrRegion = tostring(LocationDetails.countryOrRegion)
+| extend City = tostring(LocationDetails.city)
+| summarize 
+    FailedAttempts = count(),
+    UniqueCountries = dcount(CountryOrRegion),
+    Countries = make_set(CountryOrRegion),
+    Cities = make_set(City),
+    ErrorCodes = make_set(ResultType)
+  by UserPrincipalName, AppDisplayName, bin(TimeGenerated, 1h)
+| where UniqueCountries > 1 // Multiple countries indicate potential threat
+| order by FailedAttempts desc, TimeGenerated desc
+| project TimeGenerated, UserPrincipalName, AppDisplayName, FailedAttempts, Countries, Cities, ErrorCodes
