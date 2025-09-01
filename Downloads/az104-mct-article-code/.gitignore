@@ -1,0 +1,13 @@
+# General
+*.log
+.DS_Store
+Thumbs.db
+
+# PowerShell
+*.psd1
+*.psm1
+*/.vscode/
+
+# Python/Notebooks (just in case)
+__pycache__/
+.ipynb_checkpoints/
